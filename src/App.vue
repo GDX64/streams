@@ -1,17 +1,46 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <input type="text" v-model="strMessage" @keydown.enter="sendMessage" />
+  <div>{{ answer }}</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import Worker from "worker-loader!./Worker";
+import { WorkerData, isType } from "./Worker";
+
+const worker = new Worker();
+
+worker.postMessage({ a: 1 });
 
 export default defineComponent({
   name: "App",
-  components: {
-    HelloWorld
-  }
+  data() {
+    return {
+      strMessage: "",
+      answer: {},
+    };
+  },
+  methods: {
+    sendMessage() {
+      const [type, msg, ...args] = this.strMessage.split(" ");
+      const fnType = msg;
+      if (!isType(type)) {
+        return;
+      }
+      const data: WorkerData = {
+        type,
+        fnType,
+        msg,
+        args,
+      };
+      worker.postMessage(data);
+    },
+  },
+  mounted() {
+    worker.onmessage = ({ data }) => {
+      this.answer = data.result;
+    };
+  },
 });
 </script>
 
