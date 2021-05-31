@@ -1,45 +1,38 @@
 <template>
-  <input type="text" v-model="strMessage" @keydown.enter="sendMessage" />
-  <div>{{ answer }}</div>
+  <worker-ex />
+  <drag-ball-vue
+    v-for="dragBall of arrDragBalls"
+    :key="dragBall"
+    :id="dragBall"
+    @close-me="closeDragBall"
+  >
+    <div class="hello"></div>
+  </drag-ball-vue>
+  <button class="add-drag-ball" @click="addDragBall">
+    add dragball
+  </button>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Worker from "worker-loader!./Worker";
-import { WorkerData, isType } from "./Worker";
-
-const worker = new Worker();
-
-worker.postMessage({ a: 1 });
+import DragBallVue from "./components/DragBall.vue";
+import WorkerEx from "./workers/WorkerEx.vue";
 
 export default defineComponent({
   name: "App",
+  components: { WorkerEx, DragBallVue },
   data() {
     return {
-      strMessage: "",
-      answer: {},
+      arrDragBalls: [] as number[],
     };
   },
   methods: {
-    sendMessage() {
-      const [type, msg, ...args] = this.strMessage.split(" ");
-      const fnType = msg;
-      if (!isType(type)) {
-        return;
-      }
-      const data: WorkerData = {
-        type,
-        fnType,
-        msg,
-        args,
-      };
-      worker.postMessage(data);
+    addDragBall() {
+      this.arrDragBalls.push(Math.random());
     },
-  },
-  mounted() {
-    worker.onmessage = ({ data }) => {
-      this.answer = data.result;
-    };
+    closeDragBall(id: number) {
+      this.arrDragBalls = this.arrDragBalls.filter((value) => value !== id);
+    },
   },
 });
 </script>

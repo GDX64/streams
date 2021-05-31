@@ -18,14 +18,10 @@ const add = (args: string[]) => {
 };
 
 const div = ([x = "0", y = "0"]) => Number(x) / Number(y);
-const range = ([init = "0", final = "0"]) => {
-  const arr = [];
-  let i = Number(init);
-  while (i < Number(final)) {
-    arr.push(i);
-    i++;
-  }
-  return arr;
+const range = ([init = "0", final = "0"]): number[] => {
+  const initial = Number(init);
+  const numFinal = Number(final);
+  return [...Array(numFinal - initial)].map((_value, index) => index + initial);
 };
 
 const fibo = ([n = "10"]: string | number[], result = 1, prev = 1): number =>
