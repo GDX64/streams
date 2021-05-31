@@ -1,8 +1,8 @@
 <template>
-  <div class="ball" draggable="false">
+  <div class="ball" draggable="false" @keydown="keyDown" tabindex="-1">
     <slot></slot>
     <div class="resize-square" ref="resize"></div>
-    <div class="close-dragball" @click="$emit('close-me', id)">X</div>
+    <div class="close-dragball" @click="$emit('close-me', id)">x</div>
   </div>
 </template>
 
@@ -122,6 +122,11 @@ export default defineComponent({
   data() {
     return {};
   },
+  methods: {
+    keyDown(event: KeyboardEvent) {
+      event.key === "Delete" && this.$emit("close-me", this.id);
+    },
+  },
   mounted() {
     mDragBalls.add(this.$el);
     dragObservable(this.$el)
@@ -145,9 +150,13 @@ export default defineComponent({
   background-color: rgba(252, 178, 178, 0.349);
   min-height: 100px;
   min-width: 100px;
-  border-radius: 5px;
   position: absolute;
   overflow: hidden;
+  &:focus-within,
+  &:focus,
+  &:active {
+    outline: hotpink solid 2px;
+  }
 }
 .resize-square {
   background-color: royalblue;
@@ -160,10 +169,15 @@ export default defineComponent({
 }
 
 .close-dragball {
-  background-color: rgba(253, 62, 62, 0.562);
+  background-color: rgba(253, 21, 21, 0.562);
   top: 0;
   right: 0;
   position: absolute;
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+  color: rgb(207, 203, 203);
+  border-radius: 3px;
 }
 
 .no-select {

@@ -6,7 +6,12 @@
     :id="dragBall"
     @close-me="closeDragBall"
   >
-    <div class="hello"></div>
+    <img
+      src="https://poltronanerd.com.br/wp-content/uploads/2019/11/poltrona-con-air-cage-1140x570.jpg"
+      alt=""
+      class="nicolas-cage"
+      draggable="false"
+    />
   </drag-ball-vue>
   <button class="add-drag-ball" @click="addDragBall">
     add dragball
@@ -45,5 +50,10 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.nicolas-cage {
+  width: 100%;
+  height: 100%;
 }
 </style>
