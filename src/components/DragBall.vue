@@ -155,8 +155,10 @@ export default defineComponent({
   &:focus-within,
   &:focus,
   &:active {
-    outline: hotpink solid 2px;
+    border: hotpink solid 1px;
   }
+  border: rgb(117, 117, 117) solid 1px;
+  border-radius: 5px;
 }
 .resize-square {
   background-color: royalblue;
@@ -178,6 +180,7 @@ export default defineComponent({
   width: 16px;
   color: rgb(207, 203, 203);
   border-radius: 3px;
+  font-family: sans-serif;
 }
 
 .no-select {
