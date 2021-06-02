@@ -150,6 +150,8 @@ export default defineComponent({
   background-color: rgba(252, 178, 178, 0.349);
   min-height: 100px;
   min-width: 100px;
+  height: 200px;
+  width: 200px;
   position: absolute;
   overflow: hidden;
   &:focus-within,
