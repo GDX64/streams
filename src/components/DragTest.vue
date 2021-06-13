@@ -5,12 +5,7 @@
     :id="dragBall"
     @close-me="closeDragBall"
   >
-    <img
-      src="https://poltronanerd.com.br/wp-content/uploads/2019/11/poltrona-con-air-cage-1140x570.jpg"
-      alt=""
-      class="nicolas-cage"
-      draggable="false"
-    />
+    <drag-plot-vue />
   </drag-ball-vue>
   <button class="add-drag-ball" @click="addDragBall">
     add dragball
@@ -23,20 +18,15 @@
 </template>
 
 <script lang="ts">
-import { from, interval, Observable } from "rxjs";
-import {
-  bufferCount,
-  bufferTime,
-  filter,
-  map,
-  switchMap,
-} from "rxjs/operators";
+import { from, interval } from "rxjs";
+import { bufferTime, filter, map, switchMap } from "rxjs/operators";
 import { defineComponent } from "vue";
 import DragBallVue from "./DragBall.vue";
+import DragPlotVue from "./DragPlot.vue";
 import DragTableVue, { TableData } from "./DragTable.vue";
 
 function dataMoker(nCols: number) {
-  return interval(1).pipe(map(() => [...Array(nCols)].map(Math.random)));
+  return interval(100).pipe(map(() => [...Array(nCols)].map(Math.random)));
 }
 
 const chooseFrom = (init: number, finish: number) =>
@@ -44,7 +34,7 @@ const chooseFrom = (init: number, finish: number) =>
 
 export default defineComponent({
   name: "App",
-  components: { DragBallVue, DragTableVue },
+  components: { DragBallVue, DragTableVue, DragPlotVue },
   data() {
     return {
       arrDragBalls: [] as number[],

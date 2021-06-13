@@ -7,6 +7,7 @@
 import { defineComponent } from "vue";
 import DragTestVue from "./components/DragTest.vue";
 import WorkerEx from "./workers/WorkerEx.vue";
+import "./Connection/socketCon";
 
 export default defineComponent({
   name: "App",

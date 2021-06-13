@@ -4,7 +4,7 @@ export function* genMap<T, K>(fn: (x: T) => K, iter: Iterable<T>) {
   }
 }
 
-export function objMap<T, ObjType extends { [key: string]: T }, K>(
+export function objMap<T, K, ObjType extends { [key: string]: T }>(
   fn: (x: T) => K,
   obj: ObjType
 ): { [Prop in keyof ObjType]: K } {

@@ -1,6 +1,5 @@
 import { Line, Svg, Polyline, Text, SVG, Circle } from '@svgdotjs/svg.js';
 import { range, zip } from 'ramda';
-import { calc } from 'popmotion';
 interface CustomScale {
   arrDomain: number[];
   arrImage: number[];
@@ -23,6 +22,7 @@ export interface PlotObj {
     width: number;
     color: string;
   };
+  fill: string;
 }
 
 function scaleCreator(arrDomain: number[], arrImage: number[]) {
@@ -59,9 +59,6 @@ function xyScaleCreator(fnBaseScale: CustomScale) {
     return [x, y];
   };
 }
-
-type Pixel = number;
-
 class ScaleGrid {
   xAxis: Line;
   yAxis: Line;
@@ -84,7 +81,7 @@ class ScaleGrid {
     {
       scaleX = [-5, 5] as [number, number],
       scaleY = [-5, 5] as [number, number],
-      stroke = { width: 2, color: 'white' },
+      stroke = { width: 1, color: 'black' },
       xPaddingLeft = 30,
       xPaddingRight = 30,
       yPaddingBottom = 30,
@@ -137,7 +134,7 @@ class ScaleGrid {
       .plot(args as any)
       .stroke(stroke)
       .attr('shape-rendering', 'geometricPrecision');
-    this.mapPlots.set(name, { polyline, name, fnPlot, domain: arrX, image: arrY, stroke });
+    this.mapPlots.set(name, { polyline, name, fnPlot, domain: arrX, image: arrY, stroke, fill });
     return this;
   }
 
@@ -176,14 +173,17 @@ class ScaleGrid {
     return args;
   }
 
-  animatePlot(arrX: number[], arrY: number[], { name = 'plot1' } = {}) {
+  animatePlot(arrX: number[], arrY: number[], { name = 'plot1', duration=500 } = {}) {
     const args2 = this._mapData(arrX, arrY);
     const objPlot = this.mapPlots.get(name);
     if (!objPlot) {
       return this;
     }
-    objPlot.polyline.animate().plot(args2);
-    return this;
+    if(objPlot.domain.length===arrX.length && arrY.length===objPlot.image.length){
+      objPlot.polyline.animate(duration).plot(args2);
+      return this
+    }
+    return this.plot(arrX, arrY, objPlot);
   }
 
   animateFn(fnPlot: (x: number) => number, { name = 'plot1' } = {}) {
