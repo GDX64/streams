@@ -12,7 +12,14 @@ import { defineComponent } from "vue";
 import { SVG } from "@svgdotjs/svg.js";
 import ScaleGrid, { scaleCreator } from "../popUtils/Scalegrid";
 import { Observable, of, Subject, Subscription } from "rxjs";
-import { sampleTime, scan, share, switchMap } from "rxjs/operators";
+import {
+  filter,
+  map,
+  sampleTime,
+  scan,
+  share,
+  switchMap,
+} from "rxjs/operators";
 import * as R from "ramda";
 import { websocketCon } from "@/Connection/socketCon";
 
@@ -20,26 +27,33 @@ const N = 100;
 
 interface WaveData {
   nSample: number;
+  nID: number;
+}
+
+function squareWindow(n: number) {
+  return scan(
+    (acc: number[], value: number) => [
+      ...acc.slice(Math.max(0, acc.length - n + 1)),
+      value,
+    ],
+    []
+  );
 }
 
 function _makeWaveObservable(nFreq: number): Observable<number[]> {
-  return new Observable<number>((subscribe) => {
+  return new Observable<WaveData>((subscribe) => {
     websocketCon.emit("subscribeOnWave", { nFreq });
-    websocketCon.on("waveSample", ({ nSample }: WaveData) =>
-      subscribe.next(nSample)
+    websocketCon.on("waveSample", ({ nSample, nID }: WaveData) =>
+      subscribe.next({ nSample, nID })
     );
   }).pipe(
-    scan(
-      (acc: number[], value) => [
-        ...acc.slice(Math.max(0, acc.length - N + 1)),
-        value,
-      ],
-      []
-    ),
+    filter(({ nID }) => nID === nFreq),
+    map(({ nSample }) => nSample),
+    squareWindow(N),
     sampleTime(1000 / 60),
     share({
       resetOnRefCountZero: () => {
-        websocketCon.emit("unsubscribeOnWave", {});
+        websocketCon.emit("unsubscribeOnWave", { nID: nFreq });
         return of(1);
       },
     })

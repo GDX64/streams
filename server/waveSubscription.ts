@@ -13,16 +13,16 @@ function waver(freq: number) {
 }
 
 export function setupWaveSubscription(socket: Socket) {
-  const sSubscriptions = new Set<Subscription>();
+  const mSubscriptions = new Map<number, Subscription>();
   socket.on("subscribeOnWave", ({ nFreq }: WaverData) => {
     console.log("wave request, frequency:", nFreq);
     const subscription = waver(nFreq).subscribe((nSample) => {
-      socket.emit("waveSample", { nSample });
+      socket.emit("waveSample", { nSample, nID: nFreq });
     });
-    sSubscriptions.add(subscription);
+    mSubscriptions.set(nFreq, subscription);
   });
-  socket.on("unsubscribeOnWave", () => {
+  socket.on("unsubscribeOnWave", ({ nID }: { nID: number }) => {
     console.log("wave unsubscribe");
-    sSubscriptions.forEach((sub) => sub.unsubscribe());
+    mSubscriptions.get(nID)?.unsubscribe();
   });
 }
