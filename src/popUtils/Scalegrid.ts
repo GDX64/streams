@@ -76,6 +76,8 @@ class ScaleGrid {
   nTicks: number;
   arrTicksLines: Line[];
   arrTicksText: Text[];
+  nTicksDensityY = 2;
+  nTicksDensityX = 2;
   constructor(
     public draw: Svg,
     {
@@ -112,6 +114,10 @@ class ScaleGrid {
     this.nTicks = 0;
     this.arrTicksLines = [];
     this.arrTicksText = [];
+  }
+
+  plotSimple(arr: number [], {name='plot1'}={}){
+    return this.plot(range(0, arr.length), arr, {name})
   }
 
   plot(
@@ -199,19 +205,22 @@ class ScaleGrid {
     const nRealTicks = nIntervalSize * nTicksDensity + 1;
     const ticksScale = scaleCreator([0, nRealTicks - 1], [minPos, maxPos]);
     const domain = range(0, nRealTicks).map(ticksScale);
+    console.log({domain})
     const arrLines = domain.filter((n) => n !== 0).map(fnDraw);
     return arrLines;
   }
 
-  drawTicks({ nTicksDensity = 2, tickSize = 5, stroke = { width: 2, color: 'white' } } = {}) {
-    const arrLinesX = this.calcAxisTicks(nTicksDensity, this.scaleX, (n: number) => {
+  drawTicks({ nTicksDensityY = 2, nTicksDensityX = 2, tickSize = 5, stroke = { width: 2, color: 'black' } } = {}) {
+    this.nTicksDensityX = nTicksDensityX
+    this.nTicksDensityY = nTicksDensityY
+    const arrLinesX = this.calcAxisTicks(this.nTicksDensityX, this.scaleX, (n: number) => {
       const centerAxis = this.fnScaleY(0);
       const linePos = this.fnScaleX(n);
       return this.draw
         .line(linePos, centerAxis + tickSize, linePos, centerAxis - tickSize)
         .stroke(stroke);
     });
-    const arrLinesY = this.calcAxisTicks(nTicksDensity, this.scaleY, (n: number) => {
+    const arrLinesY = this.calcAxisTicks(this.nTicksDensityY, this.scaleY, (n: number) => {
       const centerAxis = this.fnScaleX(0);
       const linePos = this.fnScaleY(n);
       return this.draw
@@ -224,17 +233,17 @@ class ScaleGrid {
     return this;
   }
 
-  drawTicksText(color = '#fff') {
+  drawTicksText(color = '#000') {
     this.arrTicksText = [];
-    const arrTextX = this.calcAxisTicks(2, this.scaleX, (nPosition) => {
+    const arrTextX = this.calcAxisTicks(this.nTicksDensityX, this.scaleX, (nPosition) => {
       const linePosX = this.fnScaleX(nPosition);
       const [xPos, yPos] = [linePosX, this.center[1] + 15];
-      return this.draw.text(String(nPosition)).center(xPos, yPos).attr({ stroke: color });
+      return this.draw.text(nPosition.toPrecision(3)).center(xPos, yPos).attr({ stroke: color });
     });
-    const arrTextY = this.calcAxisTicks(2, this.scaleY, (nPosition) => {
+    const arrTextY = this.calcAxisTicks(this.nTicksDensityY, this.scaleY, (nPosition) => {
       const linePosY = this.fnScaleY(nPosition);
       const [xPos, yPos] = [this.center[0] + 20, linePosY];
-      return this.draw.text(String(nPosition)).center(xPos, yPos).attr({ stroke: color });
+      return this.draw.text(nPosition.toPrecision(3)).center(xPos, yPos).attr({ stroke: color });
     });
     return this;
   }

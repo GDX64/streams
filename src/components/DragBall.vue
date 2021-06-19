@@ -147,17 +147,16 @@ export default defineComponent({
 
 <style lang="scss">
 .ball {
-  background-color: rgba(252, 178, 178, 0.349);
+  background-color: rgba(252, 237, 237, 0.904);
   min-height: 100px;
   min-width: 100px;
-  height: 200px;
-  width: 200px;
   position: absolute;
   overflow: hidden;
   &:focus-within,
   &:focus,
   &:active {
     border: hotpink solid 1px;
+    z-index: 10;
   }
   border: rgb(117, 117, 117) solid 1px;
   border-radius: 5px;

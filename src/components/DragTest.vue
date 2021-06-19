@@ -15,6 +15,9 @@
       <drag-table-vue :tableData="tableData" />
     </div>
   </drag-ball-vue>
+  <drag-ball-vue>
+    <p-i-d-test-vue />
+  </drag-ball-vue>
 </template>
 
 <script lang="ts">
@@ -24,6 +27,7 @@ import { defineComponent } from "vue";
 import DragBallVue from "./DragBall.vue";
 import DragPlotVue from "./DragPlot.vue";
 import DragTableVue, { TableData } from "./DragTable.vue";
+import PIDTestVue from "./PIDTest.vue";
 
 function dataMoker(nCols: number) {
   return interval(100).pipe(map(() => [...Array(nCols)].map(Math.random)));
@@ -34,7 +38,7 @@ const chooseFrom = (init: number, finish: number) =>
 
 export default defineComponent({
   name: "App",
-  components: { DragBallVue, DragTableVue, DragPlotVue },
+  components: { DragBallVue, DragTableVue, DragPlotVue, PIDTestVue },
   data() {
     return {
       arrDragBalls: [] as number[],
