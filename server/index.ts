@@ -5,8 +5,6 @@ import { setupWaveSubscription } from "./waveSubscription";
 function initServer() {
   const app = express();
 
-  app.use(express.static("./public"));
-
   const nPort = process.env.PORT ?? 5000;
   const server = app.listen(nPort, () => {
     console.log(`Server is listening on ${nPort}`);
@@ -17,11 +15,9 @@ function initServer() {
       origin: "*",
     },
   });
+
   io.on("connection", (socket: Socket) => {
     console.log("New connection");
-
-    socket.emit("hello", { message: "hello" });
-
     setupWaveSubscription(socket);
   });
 }
