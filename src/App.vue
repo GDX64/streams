@@ -1,19 +1,21 @@
 <template>
-  <worker-ex />
-  <drag-test-vue />
+  <progress-bar-vue :observable="observable" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import DragTestVue from "./components/DragTest.vue";
-import WorkerEx from "./workers/WorkerEx.vue";
+import ProgressBarVue from "./components/ProgressBar.vue";
+// import DragTestVue from "./components/DragTest.vue";
+// import WorkerEx from "./workers/WorkerEx.vue";
 import "./Connection/socketCon";
-
+import { makeProgressObservable } from "./utils/ProgressObservable";
 export default defineComponent({
   name: "App",
-  components: { WorkerEx, DragTestVue },
+  components: { ProgressBarVue },
   data() {
-    return {};
+    return {
+      observable: makeProgressObservable(),
+    };
   },
   methods: {},
 });
