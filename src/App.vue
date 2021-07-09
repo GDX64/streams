@@ -1,20 +1,19 @@
 <template>
-  <progress-bar-vue :observable="observable" />
+  <drawer-vue />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ProgressBarVue from "./components/ProgressBar.vue";
+import DrawerVue from "./components/Drawer.vue";
+// import ProgressBarVue from "./components/ProgressBar.vue";
 // import DragTestVue from "./components/DragTest.vue";
 // import WorkerEx from "./workers/WorkerEx.vue";
-import { makeProgressObservable } from "./utils/ProgressObservable";
+// import { makeProgressObservable } from "./utils/ProgressObservable";
 export default defineComponent({
   name: "App",
-  components: { ProgressBarVue },
+  components: { DrawerVue },
   data() {
-    return {
-      observable: makeProgressObservable(),
-    };
+    return {};
   },
   methods: {},
 });
