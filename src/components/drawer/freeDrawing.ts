@@ -1,4 +1,4 @@
-import { fromEvent, merge, Subscription } from "rxjs";
+import { fromEvent, merge, Subscription } from 'rxjs';
 import {
   concatMap,
   filter,
@@ -10,19 +10,19 @@ import {
   switchMap,
   take,
   tap,
-} from "rxjs/operators";
-import { Polyline, SVG } from "@svgdotjs/svg.js";
-import { HasEventTargetAddRemove } from "rxjs/internal/observable/fromEvent";
+} from 'rxjs/operators';
+import { Polyline, SVG } from '@svgdotjs/svg.js';
+import { HasEventTargetAddRemove } from 'rxjs/internal/observable/fromEvent';
 
 export function makeDrawOnCanvas(canvas: HTMLElement) {
   const draw = SVG()
     .addTo(canvas)
-    .addClass("canvas-svg");
+    .addClass('canvas-svg');
   return {
     getLine({ color }: LineConfig) {
       return draw
         .polyline()
-        .fill("#00000000")
+        .fill('#00000000')
         .stroke({ color });
     },
     draw,
@@ -37,9 +37,9 @@ interface LineConfig {
 }
 
 function mouseObservable(canvas: HasEventTargetAddRemove<MouseEvent>) {
-  return fromEvent<MouseEvent>(canvas, "mousedown").pipe(
+  return fromEvent<MouseEvent>(canvas, 'mousedown').pipe(
     filter((event) => event.button === 0),
-    concatMap(() => fromEvent<MouseEvent>(canvas, "mousemove")),
+    concatMap(() => fromEvent<MouseEvent>(canvas, 'mousemove')),
     map(({ offsetX, offsetY }) => [offsetX, offsetY] as PairNum),
     scan((acc, pairXY) => [...acc, pairXY], [] as PairNumArr)
   );
@@ -55,8 +55,8 @@ export function makeCanvasObservable(objDrawer: ObjDrawer, config: LineConfig) {
     }, null),
     switchMap((line) =>
       merge(
-        fromEvent(document, "mouseup").pipe(mapTo(null)),
-        fromEvent($canvas, "mousedown").pipe(mapTo(line))
+        fromEvent(document, 'mouseup').pipe(mapTo(null)),
+        fromEvent($canvas, 'mousedown').pipe(mapTo(line))
       )
     ),
     take(1),
@@ -66,7 +66,7 @@ export function makeCanvasObservable(objDrawer: ObjDrawer, config: LineConfig) {
 }
 
 function pointEmitter($canvas: HasEventTargetAddRemove<MouseEvent>) {
-  return fromEvent($canvas, "click").pipe(
-    switchMap((event) => fromEvent($canvas, "mousemove").pipe(startWith(event)))
+  return fromEvent($canvas, 'click').pipe(
+    switchMap((event) => fromEvent($canvas, 'mousemove').pipe(startWith(event)))
   );
 }
