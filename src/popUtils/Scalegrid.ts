@@ -1,6 +1,6 @@
 import { Line, Svg, Polyline, Text, SVG, Circle } from '@svgdotjs/svg.js';
 import { range, zip } from 'ramda';
-interface CustomScale {
+export interface CustomScale {
   arrDomain: number[];
   arrImage: number[];
   (arg: number): number;
@@ -116,8 +116,8 @@ class ScaleGrid {
     this.arrTicksText = [];
   }
 
-  plotSimple(arr: number [], {name='plot1'}={}){
-    return this.plot(range(0, arr.length), arr, {name})
+  plotSimple(arr: number[], { name = 'plot1' } = {}) {
+    return this.plot(range(0, arr.length), arr, { name });
   }
 
   plot(
@@ -179,15 +179,15 @@ class ScaleGrid {
     return args;
   }
 
-  animatePlot(arrX: number[], arrY: number[], { name = 'plot1', duration=500 } = {}) {
+  animatePlot(arrX: number[], arrY: number[], { name = 'plot1', duration = 500 } = {}) {
     const args2 = this._mapData(arrX, arrY);
     const objPlot = this.mapPlots.get(name);
     if (!objPlot) {
       return this;
     }
-    if(objPlot.domain.length===arrX.length && arrY.length===objPlot.image.length){
+    if (objPlot.domain.length === arrX.length && arrY.length === objPlot.image.length) {
       objPlot.polyline.animate(duration).plot(args2);
-      return this
+      return this;
     }
     return this.plot(arrX, arrY, objPlot);
   }
@@ -205,14 +205,19 @@ class ScaleGrid {
     const nRealTicks = nIntervalSize * nTicksDensity + 1;
     const ticksScale = scaleCreator([0, nRealTicks - 1], [minPos, maxPos]);
     const domain = range(0, nRealTicks).map(ticksScale);
-    console.log({domain})
+    console.log({ domain });
     const arrLines = domain.filter((n) => n !== 0).map(fnDraw);
     return arrLines;
   }
 
-  drawTicks({ nTicksDensityY = 2, nTicksDensityX = 2, tickSize = 5, stroke = { width: 2, color: 'black' } } = {}) {
-    this.nTicksDensityX = nTicksDensityX
-    this.nTicksDensityY = nTicksDensityY
+  drawTicks({
+    nTicksDensityY = 2,
+    nTicksDensityX = 2,
+    tickSize = 5,
+    stroke = { width: 2, color: 'black' },
+  } = {}) {
+    this.nTicksDensityX = nTicksDensityX;
+    this.nTicksDensityY = nTicksDensityY;
     const arrLinesX = this.calcAxisTicks(this.nTicksDensityX, this.scaleX, (n: number) => {
       const centerAxis = this.fnScaleY(0);
       const linePos = this.fnScaleX(n);
@@ -238,12 +243,18 @@ class ScaleGrid {
     const arrTextX = this.calcAxisTicks(this.nTicksDensityX, this.scaleX, (nPosition) => {
       const linePosX = this.fnScaleX(nPosition);
       const [xPos, yPos] = [linePosX, this.center[1] + 15];
-      return this.draw.text(nPosition.toPrecision(3)).center(xPos, yPos).attr({ stroke: color });
+      return this.draw
+        .text(nPosition.toPrecision(3))
+        .center(xPos, yPos)
+        .attr({ stroke: color });
     });
     const arrTextY = this.calcAxisTicks(this.nTicksDensityY, this.scaleY, (nPosition) => {
       const linePosY = this.fnScaleY(nPosition);
       const [xPos, yPos] = [this.center[0] + 20, linePosY];
-      return this.draw.text(nPosition.toPrecision(3)).center(xPos, yPos).attr({ stroke: color });
+      return this.draw
+        .text(nPosition.toPrecision(3))
+        .center(xPos, yPos)
+        .attr({ stroke: color });
     });
     return this;
   }
@@ -279,7 +290,10 @@ class ScaleGrid {
         if (!fx) return;
         const fxPixels = this.fnScaleY(fx);
         const trackObj = objPlot.trackObj ?? {
-          ball: this.draw.circle(10).attr({ stroke: objPlot.stroke }).fill(objPlot.stroke.color),
+          ball: this.draw
+            .circle(10)
+            .attr({ stroke: objPlot.stroke })
+            .fill(objPlot.stroke.color),
           text: this.draw.text(fx.toFixed(2)).stroke(objPlot.stroke.color),
         };
         if (Math.abs(fxPixels - event.offsetY) > MIN_SHOW_BALL_DISTANCE) {
@@ -301,4 +315,3 @@ class ScaleGrid {
 
 export default ScaleGrid;
 export { zip, scaleCreator, range, diffScaleCreator, xyScaleCreator, inverseScale };
-export type { CustomScale };

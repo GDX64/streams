@@ -21,33 +21,30 @@
 </template>
 
 <script lang="ts">
-import { from, interval } from "rxjs";
-import { bufferTime, concatMap, map, switchMap } from "rxjs/operators";
-import { defineComponent } from "vue";
-import DragBallVue from "./DragBall.vue";
-import DragPlotVue from "./DragPlot.vue";
-import DragTableVue, { TableData } from "./DragTable.vue";
-import * as R from "ramda";
+import { from, interval } from 'rxjs';
+import { bufferTime, concatMap, map, switchMap } from 'rxjs/operators';
+import { defineComponent } from 'vue';
+import DragBallVue from './DragBall.vue';
+import DragPlotVue from './DragPlot.vue';
+import DragTableVue, { TableData } from './DragTable.vue';
+import * as R from 'ramda';
 
 function dataMoker(nCols: number) {
   return interval(100).pipe(
-    concatMap(() =>
-      from(R.range(0, 10).map(() => [...Array(nCols)].map(Math.random)))
-    )
+    concatMap(() => from(R.range(0, 10).map(() => [...Array(nCols)].map(Math.random))))
   );
 }
 
-const chooseFrom = (init: number, finish: number) =>
-  Math.round(Math.random() * (finish - init));
+const chooseFrom = (init: number, finish: number) => Math.round(Math.random() * (finish - init));
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   components: { DragBallVue, DragTableVue, DragPlotVue },
   data() {
     return {
       arrDragBalls: [] as number[],
       tableData: {
-        headers: ["hello", "there", "the", "angel", "from"],
+        headers: ['hello', 'there', 'the', 'angel', 'from'],
         body: [[]],
       } as TableData<string>,
     };

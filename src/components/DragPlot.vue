@@ -8,20 +8,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { SVG } from "@svgdotjs/svg.js";
-import ScaleGrid, { scaleCreator } from "../popUtils/Scalegrid";
-import { Observable, of, Subject, Subscription } from "rxjs";
-import {
-  filter,
-  map,
-  sampleTime,
-  scan,
-  share,
-  switchMap,
-} from "rxjs/operators";
-import * as R from "ramda";
-import { websocketCon } from "@/Connection/socketCon";
+import { defineComponent } from 'vue';
+import { SVG } from '@svgdotjs/svg.js';
+import ScaleGrid, { scaleCreator } from '../popUtils/Scalegrid';
+import { Observable, of, Subject, Subscription } from 'rxjs';
+import { filter, map, sampleTime, scan, share, switchMap } from 'rxjs/operators';
+import * as R from 'ramda';
+import { websocketCon } from '@/Connection/socketCon';
 
 const N = 100;
 
@@ -32,20 +25,15 @@ interface WaveData {
 
 function squareWindow(n: number) {
   return scan(
-    (acc: number[], value: number) => [
-      ...acc.slice(Math.max(0, acc.length - n + 1)),
-      value,
-    ],
+    (acc: number[], value: number) => [...acc.slice(Math.max(0, acc.length - n + 1)), value],
     []
   );
 }
 
 function _makeWaveObservable(nFreq: number): Observable<number[]> {
   return new Observable<WaveData>((subscribe) => {
-    websocketCon.emit("subscribeOnWave", { nFreq });
-    websocketCon.on("waveSample", ({ nSample, nID }: WaveData) =>
-      subscribe.next({ nSample, nID })
-    );
+    websocketCon.emit('subscribeOnWave', { nFreq });
+    websocketCon.on('waveSample', ({ nSample, nID }: WaveData) => subscribe.next({ nSample, nID }));
   }).pipe(
     filter(({ nID }) => nID === nFreq),
     map(({ nSample }) => nSample),
@@ -53,7 +41,7 @@ function _makeWaveObservable(nFreq: number): Observable<number[]> {
     sampleTime(1000 / 60),
     share({
       resetOnRefCountZero: () => {
-        websocketCon.emit("unsubscribeOnWave", { nID: nFreq });
+        websocketCon.emit('unsubscribeOnWave', { nID: nFreq });
         return of(1);
       },
     })
@@ -76,7 +64,7 @@ export default defineComponent({
     const draw = SVG()
       .addTo(this.$el as HTMLElement)
       .size(300, 300)
-      .viewbox("0 0 300 300");
+      .viewbox('0 0 300 300');
 
     const sg = new ScaleGrid(draw, {});
     sg.plot([1, 2, 3, 4], [1, 2, 3, 4]);
@@ -88,7 +76,7 @@ export default defineComponent({
         this.sg.plot(R.range(0, arrWave.length).map(scaleX), arrWave);
       });
 
-    draw.size("100%", "100%").attr("preserveAspectRatio", "none");
+    draw.size('100%', '100%').attr('preserveAspectRatio', 'none');
     this.sg = sg;
   },
   unmounted() {

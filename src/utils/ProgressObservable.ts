@@ -1,5 +1,5 @@
-import { interval, of, timer } from "rxjs";
-import { concatMap, map, repeat, scan, take } from "rxjs/operators";
+import { interval, of, timer } from 'rxjs';
+import { concatMap, map, repeat, scan, take } from 'rxjs/operators';
 
 function randomTimeObservable(fnRamdom: () => number) {
   return of(1).pipe(

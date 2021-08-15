@@ -5,8 +5,14 @@ function popTest($elment: Element) {
   const draw = SVG()
     .addTo($elment as HTMLElement)
     .size(500, 500);
-  const rect = draw.rect(100, 100).attr({ fill: '#f06' }).addClass('ball');
-  const circle = draw.circle(50, 50).attr({ fill: '#55f' }).addClass('ball');
+  const rect = draw
+    .rect(100, 100)
+    .attr({ fill: '#f06' })
+    .addClass('ball');
+  const circle = draw
+    .circle(50, 50)
+    .attr({ fill: '#55f' })
+    .addClass('ball');
 
   const movingRect = styler(rect.node);
   const movingCircle = styler(circle.node);

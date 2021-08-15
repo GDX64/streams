@@ -1,4 +1,4 @@
-import { asyncScheduler, from, generate, scheduled } from "rxjs";
+import { asyncScheduler, from, generate, scheduled } from 'rxjs';
 
 function fibo(n: bigint): bigint {
   if (n === 0n) return 1n;
@@ -19,5 +19,5 @@ export function infinityTest() {
   }).subscribe((value) => {
     console.log(fibo(25n));
   });
-  console.log("started");
+  console.log('started');
 }

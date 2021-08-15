@@ -7,17 +7,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { from, fromEvent, fromEventPattern } from "rxjs";
-import {
-  takeUntil,
-  switchMap,
-  tap,
-  map,
-  scan,
-  filter,
-  reduce,
-} from "rxjs/operators";
+import { defineComponent } from 'vue';
+import { from, fromEvent, fromEventPattern } from 'rxjs';
+import { takeUntil, switchMap, tap, map, scan, filter, reduce } from 'rxjs/operators';
 
 type TopLeft = { top: number; left: number };
 
@@ -33,15 +25,11 @@ function withStoppedEvent($el: HTMLElement, strEvent: string) {
 }
 
 function dragObservable($el: HTMLElement) {
-  return withStoppedEvent($el, "mousedown").pipe(
-    tap(() => $el.classList.add("no-select")),
+  return withStoppedEvent($el, 'mousedown').pipe(
+    tap(() => $el.classList.add('no-select')),
     switchMap(() =>
-      fromEvent<MouseEvent>(document, "mousemove").pipe(
-        takeUntil(
-          fromEvent(document, "mouseup").pipe(
-            tap(() => $el.classList.remove("no-select"))
-          )
-        )
+      fromEvent<MouseEvent>(document, 'mousemove').pipe(
+        takeUntil(fromEvent(document, 'mouseup').pipe(tap(() => $el.classList.remove('no-select'))))
       )
     )
   );
@@ -63,8 +51,7 @@ function snap(value: number, reference: number, tolerance = 10) {
   return Math.abs(value - reference) < tolerance ? reference : null;
 }
 
-const maybeOp = <T, K>(value: T | null, fn: (x: T) => K) =>
-  value == null ? null : fn(value);
+const maybeOp = <T, K>(value: T | null, fn: (x: T) => K) => (value == null ? null : fn(value));
 
 function getSnappedPos({ top, left }: TopLeft, $element: HTMLElement) {
   return from(mDragBalls).pipe(
@@ -112,8 +99,8 @@ function updatePos($el: HTMLElement) {
 function makeResizable($el: HTMLElement) {
   return ({ movementX = 0, movementY = 0 }) => {
     const { clientHeight, clientWidth } = $el;
-    $el.style.height = clientHeight + movementY + "px";
-    $el.style.width = clientWidth + movementX + "px";
+    $el.style.height = clientHeight + movementY + 'px';
+    $el.style.width = clientWidth + movementX + 'px';
   };
 }
 
@@ -124,7 +111,7 @@ export default defineComponent({
   },
   methods: {
     keyDown(event: KeyboardEvent) {
-      event.key === "Delete" && this.$emit("close-me", this.id);
+      event.key === 'Delete' && this.$emit('close-me', this.id);
     },
   },
   mounted() {
@@ -135,9 +122,7 @@ export default defineComponent({
         switchMap((objPos) => getSnappedPos(objPos, this.$el))
       )
       .subscribe(updatePos(this.$el));
-    dragObservable(this.$refs.resize as HTMLElement).subscribe(
-      makeResizable(this.$el)
-    );
+    dragObservable(this.$refs.resize as HTMLElement).subscribe(makeResizable(this.$el));
   },
   beforeUnmount() {
     mDragBalls.delete(this.$el);

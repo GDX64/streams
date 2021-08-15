@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, reactive, ref } from 'vue';
 
 const arrValues = ref([1, 2, 3, 4]);
-const value = computed(() => (console.log("I ran"), arrValues.value.reduce((a, b) => a + b)));
+const value = computed(() => (console.log('I ran'), arrValues.value.reduce((a, b) => a + b)));
 
 (window as any).arrValues = arrValues;
 (window as any).value = value;
@@ -15,7 +15,7 @@ const value = computed(() => (console.log("I ran"), arrValues.value.reduce((a, b
 export default defineComponent({
   setup() {
     return { value };
-  }
+  },
 });
 </script>
 

@@ -8,23 +8,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
-import { Subscription } from "rxjs";
-import {
-  makeDrawOnCanvas,
-  makeCanvasObservable,
-  ObjDrawer,
-} from "./freeDrawing";
+import { computed, defineComponent, reactive, ref } from 'vue';
+import { Subscription } from 'rxjs';
+import { makeDrawOnCanvas, makeCanvasObservable, ObjDrawer } from './freeDrawing';
 
 export default defineComponent({
   setup() {
     const canvas = ref<HTMLElement | null>(null);
     const subscription = ref<Subscription | null>(null);
     const objDrawer = computed<ObjDrawer>(() => {
-      if (!canvas.value) throw Error("Canvas not present");
+      if (!canvas.value) throw Error('Canvas not present');
       return makeDrawOnCanvas(canvas.value);
     });
-    const lineConfig = reactive({ color: "#ff0000" });
+    const lineConfig = reactive({ color: '#ff0000' });
     lineConfig.color;
     return { canvas, lineConfig, subscription, objDrawer };
   },
@@ -32,11 +28,10 @@ export default defineComponent({
   methods: {
     startFreeDraw() {
       this.subscription?.unsubscribe();
-      if (!this.canvas) throw Error("Canvas not present");
-      this.subscription = makeCanvasObservable(
-        this.objDrawer,
-        this.lineConfig
-      ).subscribe(console.log);
+      if (!this.canvas) throw Error('Canvas not present');
+      this.subscription = makeCanvasObservable(this.objDrawer, this.lineConfig).subscribe(
+        console.log
+      );
     },
   },
 });

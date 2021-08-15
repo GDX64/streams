@@ -1,4 +1,4 @@
-import * as R from "ramda";
+import * as R from 'ramda';
 
 class PIDController {
   nError = 0;
@@ -12,10 +12,7 @@ class PIDController {
     return this.nOutput;
   }
 
-  reachRef(
-    { nRef = 1, nSimulation = 100, dt = 0.1 },
-    fnSystem: (x: number) => number
-  ) {
+  reachRef({ nRef = 1, nSimulation = 100, dt = 0.1 }, fnSystem: (x: number) => number) {
     return R.range(0, nSimulation).map(() => {
       const value = fnSystem(this.nOutput);
       this.update(nRef - value, dt);
@@ -25,10 +22,7 @@ class PIDController {
 }
 
 const dot = (arrValues: number[], arrSystem: number[]) =>
-  R.zip(arrValues, arrSystem).reduce(
-    (acc, [value, coef]) => value * coef + acc,
-    0
-  );
+  R.zip(arrValues, arrSystem).reduce((acc, [value, coef]) => value * coef + acc, 0);
 
 function makeSystem(arrSystem: number[], nInitial: number) {
   const arrValues = arrSystem.map(() => nInitial);
@@ -42,10 +36,7 @@ function makeSystem(arrSystem: number[], nInitial: number) {
 export function testPID() {
   const pid = new PIDController(0.1, 10);
   const system = makeSystem([0.2, 0.6, 0.2], 0);
-  const values = pid.reachRef(
-    { nRef: 10, nSimulation: 1000, dt: 0.01 },
-    system
-  );
+  const values = pid.reachRef({ nRef: 10, nSimulation: 1000, dt: 0.01 }, system);
   return values;
 }
 

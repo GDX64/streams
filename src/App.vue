@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import ReactivityTestVue from "./components/ReactivityTest.vue";
+import { defineComponent } from 'vue';
+import ReactivityTestVue from './components/ReactivityTest.vue';
 // import DragTestVue from "./components/DragTest.vue";
 // import DrawerVue from "./components/drawer/Drawer.vue";
 // import ProgressBarVue from "./components/ProgressBar.vue";
@@ -13,7 +13,7 @@ import ReactivityTestVue from "./components/ReactivityTest.vue";
 // import { makeProgressObservable } from "./utils/ProgressObservable";
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   components: { ReactivityTestVue },
   data() {
     return {};

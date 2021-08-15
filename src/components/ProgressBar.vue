@@ -6,10 +6,10 @@
 </template>
 
 <script lang="ts">
-import { Observable } from "rxjs";
-import { animate, easeInOut } from "popmotion";
-import { defineComponent, PropType } from "vue";
-import { switchMap } from "rxjs/operators";
+import { Observable } from 'rxjs';
+import { animate, easeInOut } from 'popmotion';
+import { defineComponent, PropType } from 'vue';
+import { switchMap } from 'rxjs/operators';
 
 function createAnimationObservable(from: number, to: number) {
   return new Observable<number>((subscription) => {
@@ -51,9 +51,7 @@ export default defineComponent({
   },
   mounted() {
     this.observable
-      .pipe(
-        switchMap((nValue) => createAnimationObservable(this.progress, nValue))
-      )
+      .pipe(switchMap((nValue) => createAnimationObservable(this.progress, nValue)))
       .subscribe((nValue) => {
         this.progress = nValue;
       });
@@ -78,11 +76,7 @@ export default defineComponent({
     height: 10px;
     width: 0px;
     border: rgb(21, 32, 21) solid 2px;
-    background-image: linear-gradient(
-      to right,
-      rgb(13, 121, 13),
-      rgb(146, 250, 227)
-    );
+    background-image: linear-gradient(to right, rgb(13, 121, 13), rgb(146, 250, 227));
   }
 }
 </style>

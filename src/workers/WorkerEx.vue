@@ -4,25 +4,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import Worker from "worker-loader!./Worker";
-import { WorkerData, isType } from "./Worker";
+import { defineComponent } from 'vue';
+import Worker from 'worker-loader!./Worker';
+import { WorkerData, isType } from './Worker';
 
 const worker = new Worker();
 
 worker.postMessage({ a: 1 });
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   data() {
     return {
-      strMessage: "",
+      strMessage: '',
       answer: {},
     };
   },
   methods: {
     sendMessage() {
-      const [type, msg, ...args] = this.strMessage.split(" ");
+      const [type, msg, ...args] = this.strMessage.split(' ');
       const fnType = msg;
       if (!isType(type)) {
         return;

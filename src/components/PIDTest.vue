@@ -3,11 +3,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { SVG } from "@svgdotjs/svg.js";
-import ScaleGrid from "../popUtils/Scalegrid";
-import * as R from "ramda";
-import { testPID } from "../utils/PIDController";
+import { defineComponent } from 'vue';
+import { SVG } from '@svgdotjs/svg.js';
+import ScaleGrid from '../popUtils/Scalegrid';
+import * as R from 'ramda';
+import { testPID } from '../utils/PIDController';
 
 export default defineComponent({
   data() {
@@ -17,7 +17,7 @@ export default defineComponent({
     const draw = SVG()
       .addTo(this.$el as HTMLElement)
       .size(600, 600)
-      .viewbox("0 0 600 600");
+      .viewbox('0 0 600 600');
 
     const sg = new ScaleGrid(draw, {
       scaleX: [-1, 200],
@@ -25,10 +25,10 @@ export default defineComponent({
     })
       .drawTicks({ nTicksDensityX: 0.05, nTicksDensityY: 1 })
       .drawTicksText();
-    draw.size("100%", "100%").attr("preserveAspectRatio", "none");
+    draw.size('100%', '100%').attr('preserveAspectRatio', 'none');
 
     const result = testPID();
-    const arrValues = R.pluck("value", result);
+    const arrValues = R.pluck('value', result);
     sg.plotSimple(arrValues);
   },
 });

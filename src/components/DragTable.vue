@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent, PropType } from 'vue';
 
 export interface TableData<T extends number | string> {
   headers: string[];
@@ -29,7 +29,7 @@ export default defineComponent({
   },
   methods: {
     txtColor(txt: number | string) {
-      return Number(txt) > 0.5 ? "cell--green" : "cell--red";
+      return Number(txt) > 0.5 ? 'cell--green' : 'cell--red';
     },
   },
 });

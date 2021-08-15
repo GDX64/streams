@@ -1,10 +1,6 @@
-import * as R from "ramda";
+import * as R from 'ramda';
 
-export function smooth(
-  _arrNumbers: number[],
-  nSmoothFactor: number,
-  bZeroPading = false
-) {
+export function smooth(_arrNumbers: number[], nSmoothFactor: number, bZeroPading = false) {
   const arrNumbers = bZeroPading
     ? _arrNumbers
     : R.repeat(_arrNumbers[0], nSmoothFactor).concat(_arrNumbers);
@@ -12,9 +8,7 @@ export function smooth(
     .slice(bZeroPading ? 0 : nSmoothFactor)
     .reduce((acc: number[], _nValue: number, _nIndex: number) => {
       const nIndex = _nIndex + nSmoothFactor;
-      acc.push(
-        R.sum(arrNumbers.slice(nIndex - nSmoothFactor, nIndex)) / nSmoothFactor
-      );
+      acc.push(R.sum(arrNumbers.slice(nIndex - nSmoothFactor, nIndex)) / nSmoothFactor);
       return acc;
     }, []);
 }
@@ -34,8 +28,7 @@ export function smoothPair(
 export function binarySearchN(arrValues: number[], value: number): number {
   const nHalf = Math.floor(arrValues.length / 2);
   const nTest = arrValues[nHalf];
-  const arrHalf =
-    value < nTest ? arrValues.slice(0, nHalf) : arrValues.slice(nHalf);
+  const arrHalf = value < nTest ? arrValues.slice(0, nHalf) : arrValues.slice(nHalf);
 
   if (nTest === value || arrValues.length <= 1) return nTest;
   return binarySearchN(arrHalf, value);
@@ -44,5 +37,4 @@ export function binarySearchN(arrValues: number[], value: number): number {
 const range = (init: number, final: number) =>
   [...Array(final - init)].map((_, index) => index + init);
 
-const zip = <K, T>(x: T[], y: K[]) =>
-  x.map((value, index) => [value, y[index]]);
+const zip = <K, T>(x: T[], y: K[]) => x.map((value, index) => [value, y[index]]);
