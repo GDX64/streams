@@ -7,30 +7,34 @@
   >
     <drag-plot-vue />
   </drag-ball-vue>
-  <button class="add-drag-ball" @click="addDragBall">
+  <!-- <button class="add-drag-ball" @click="addDragBall">
     add dragball
-  </button>
+  </button> -->
   <drag-ball-vue>
     <div class="table-container">
       <drag-table-vue :tableData="tableData" />
     </div>
   </drag-ball-vue>
-  <drag-ball-vue>
+  <!-- <drag-ball-vue>
     <p-i-d-test-vue />
-  </drag-ball-vue>
+  </drag-ball-vue> -->
 </template>
 
 <script lang="ts">
 import { from, interval } from "rxjs";
-import { bufferTime, filter, map, switchMap } from "rxjs/operators";
+import { bufferTime, concatMap, map, switchMap } from "rxjs/operators";
 import { defineComponent } from "vue";
 import DragBallVue from "./DragBall.vue";
 import DragPlotVue from "./DragPlot.vue";
 import DragTableVue, { TableData } from "./DragTable.vue";
-import PIDTestVue from "./PIDTest.vue";
+import * as R from "ramda";
 
 function dataMoker(nCols: number) {
-  return interval(100).pipe(map(() => [...Array(nCols)].map(Math.random)));
+  return interval(100).pipe(
+    concatMap(() =>
+      from(R.range(0, 10).map(() => [...Array(nCols)].map(Math.random)))
+    )
+  );
 }
 
 const chooseFrom = (init: number, finish: number) =>
@@ -38,17 +42,14 @@ const chooseFrom = (init: number, finish: number) =>
 
 export default defineComponent({
   name: "App",
-  components: { DragBallVue, DragTableVue, DragPlotVue, PIDTestVue },
+  components: { DragBallVue, DragTableVue, DragPlotVue },
   data() {
     return {
       arrDragBalls: [] as number[],
       tableData: {
         headers: ["hello", "there", "the", "angel", "from"],
-        body: [
-          [1, 2],
-          [3, 4],
-        ],
-      } as TableData<number | string>,
+        body: [[]],
+      } as TableData<string>,
     };
   },
   methods: {
@@ -60,17 +61,15 @@ export default defineComponent({
     },
   },
   mounted() {
-    dataMoker(5)
+    dataMoker(30)
       .pipe(
-        filter((arr) => arr[0] > 0.5),
         map((arr) => arr.map((n) => n.toFixed(4))),
-        bufferTime(200),
+        bufferTime(500),
         switchMap((arrArrValues) => from(arrArrValues))
       )
       .subscribe((arrValues) => {
         const body = this.tableData.body;
-        body[chooseFrom(0, body.length + 1)] = arrValues;
-        this.tableData = { ...this.tableData, body };
+        body[chooseFrom(0, Math.min(50, body.length + 1))] = arrValues;
       });
   },
 });
