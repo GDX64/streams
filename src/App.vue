@@ -1,11 +1,12 @@
 <template>
   <reactivity-test-vue />
+  <drag-test-vue />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ReactivityTestVue from './components/ReactivityTest.vue';
-// import DragTestVue from "./components/DragTest.vue";
+import DragTestVue from './components/DragTest.vue';
 // import DrawerVue from "./components/drawer/Drawer.vue";
 // import ProgressBarVue from "./components/ProgressBar.vue";
 // import DragTestVue from "./components/DragTest.vue";
@@ -14,7 +15,7 @@ import ReactivityTestVue from './components/ReactivityTest.vue';
 
 export default defineComponent({
   name: 'App',
-  components: { ReactivityTestVue },
+  components: { ReactivityTestVue, DragTestVue },
   data() {
     return {};
   },

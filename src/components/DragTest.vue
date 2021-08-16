@@ -22,17 +22,24 @@
 
 <script lang="ts">
 import { from, interval } from 'rxjs';
-import { bufferTime, concatMap, map, switchMap } from 'rxjs/operators';
+import { concatMap, map, mergeWith } from 'rxjs/operators';
 import { defineComponent } from 'vue';
 import DragBallVue from './DragBall.vue';
 import DragPlotVue from './DragPlot.vue';
-import DragTableVue, { TableData } from './DragTable.vue';
+import DragTableVue, { Row } from './Table/DragTable.vue';
 import * as R from 'ramda';
 
 function dataMoker(nCols: number) {
-  return interval(100).pipe(
-    concatMap(() => from(R.range(0, 10).map(() => [...Array(nCols)].map(Math.random))))
+  const generateArray = (size: number) =>
+    R.range(0, size).map(() => [...Array(nCols)].map(Math.random));
+  return interval(30).pipe(
+    mergeWith(from(generateArray(1_000))),
+    concatMap(() => from(generateArray(3)))
   );
+}
+
+function updater(getSize: () => [number, number]) {
+  return interval(1000).pipe(map(() => [chooseFrom(0, getSize()[0]), chooseFrom(0, getSize()[1])]));
 }
 
 const chooseFrom = (init: number, finish: number) => Math.round(Math.random() * (finish - init));
@@ -44,9 +51,15 @@ export default defineComponent({
     return {
       arrDragBalls: [] as number[],
       tableData: {
-        headers: ['hello', 'there', 'the', 'angel', 'from'],
-        body: [[]],
-      } as TableData<string>,
+        colsConfig: R.range(0, 5).map((index) => {
+          return {
+            header: `p${index + 1}`,
+            propName: `p${index + 1}`,
+            compClass: (value: number) => (value > 0 ? 'red' : 'green'),
+          };
+        }),
+        rows: [{ key: 1 }],
+      },
     };
   },
   methods: {
@@ -58,16 +71,19 @@ export default defineComponent({
     },
   },
   mounted() {
-    dataMoker(30)
-      .pipe(
-        map((arr) => arr.map((n) => n.toFixed(4))),
-        bufferTime(500),
-        switchMap((arrArrValues) => from(arrArrValues))
-      )
-      .subscribe((arrValues) => {
-        const body = this.tableData.body;
-        body[chooseFrom(0, Math.min(50, body.length + 1))] = arrValues;
+    dataMoker(5)
+      .pipe(map((arr) => arr.map((n) => (n - 0.5).toFixed(4))))
+      .subscribe(([p1, p2, p3, p4, p5]) => {
+        const rows = this.tableData.rows;
+        const rowIndex = chooseFrom(0, Math.min(15, rows.length));
+        rows[rowIndex] = { key: rowIndex, p1, p2, p3, p4, p5 } as Row;
       });
+    updater(() => [this.tableData.rows.length - 1, this.tableData.colsConfig.length - 1]).subscribe(
+      ([rowIndex, colIndex]) => {
+        const row = this.tableData.rows[rowIndex] as any;
+        row[`p${colIndex + 1}`] = (Math.random() - 0.5).toFixed(4);
+      }
+    );
   },
 });
 </script>
