@@ -1,15 +1,14 @@
 <template>
-  <reactivity-test-vue />
-  <drag-test-vue />
+  <drawer-vue />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import ReactivityTestVue from './components/dragAndFriends/ReactivityTest.vue';
+import DrawerVue from './components/drawer/Drawer.vue';
 
 export default defineComponent({
   name: 'App',
-  components: { ReactivityTestVue },
+  components: { DrawerVue },
   data() {
     return {};
   },

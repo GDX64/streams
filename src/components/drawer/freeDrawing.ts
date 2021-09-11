@@ -1,4 +1,4 @@
-import { fromEvent, merge, Subscription } from 'rxjs';
+import { fromEvent, merge } from 'rxjs';
 import {
   concatMap,
   filter,
@@ -55,12 +55,14 @@ export function makeCanvasObservable(objDrawer: ObjDrawer, config: LineConfig) {
     }, null),
     switchMap((line) =>
       merge(
-        fromEvent(document, 'mouseup').pipe(mapTo(null)),
-        fromEvent($canvas, 'mousedown').pipe(mapTo(line))
+        fromEvent(document, 'mouseup').pipe(mapTo(line)),
+        fromEvent($canvas, 'mousedown').pipe(
+          tap(() => line?.remove()),
+          mapTo(null)
+        )
       )
     ),
     take(1),
-    tap((line) => line?.remove()),
     repeat()
   );
 }

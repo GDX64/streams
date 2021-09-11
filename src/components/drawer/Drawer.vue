@@ -2,7 +2,20 @@
   <div class="canvas-container" ref="canvas" @contextmenu.prevent>
     <div class="tools-bar">
       <input type="color" v-model="lineConfig.color" />
-      <button class="draw-tool" @click="startFreeDraw">Free</button>
+      <button
+        :class="{ 'selected-tool': selectedTool === ToolsEnum.FREE_DRAW }"
+        class="draw-tool"
+        @click="startFreeDraw"
+      >
+        Free
+      </button>
+      <button
+        :class="{ 'selected-tool': selectedTool === ToolsEnum.NONE }"
+        class="draw-tool"
+        @click="noneSelected"
+      >
+        None
+      </button>
     </div>
   </div>
 </template>
@@ -11,6 +24,8 @@
 import { computed, defineComponent, reactive, ref } from 'vue';
 import { Subscription } from 'rxjs';
 import { makeDrawOnCanvas, makeCanvasObservable, ObjDrawer } from './freeDrawing';
+import { Polyline } from '@svgdotjs/svg.js';
+import ToolsEnum from './ToolsEnum';
 
 export default defineComponent({
   setup() {
@@ -21,17 +36,28 @@ export default defineComponent({
       return makeDrawOnCanvas(canvas.value);
     });
     const lineConfig = reactive({ color: '#ff0000' });
+    const drawSet = new Set<Polyline>();
+    const selectedTool = ref(ToolsEnum.NONE);
     lineConfig.color;
-    return { canvas, lineConfig, subscription, objDrawer };
+    return { canvas, lineConfig, subscription, objDrawer, drawSet, selectedTool, ToolsEnum };
   },
 
   methods: {
     startFreeDraw() {
       this.subscription?.unsubscribe();
-      if (!this.canvas) throw Error('Canvas not present');
+      this.selectedTool = ToolsEnum.FREE_DRAW;
       this.subscription = makeCanvasObservable(this.objDrawer, this.lineConfig).subscribe(
-        console.log
+        this.addToDrawSet
       );
+    },
+    noneSelected() {
+      this.selectedTool = ToolsEnum.NONE;
+      this.subscription?.unsubscribe();
+    },
+    addToDrawSet(draw: Polyline | null) {
+      if (!draw) return;
+      draw.addClass('canvas-draw');
+      this.drawSet.add(draw);
     },
   },
 });
@@ -47,6 +73,15 @@ export default defineComponent({
 }
 .canvas-svg {
   flex-grow: 1;
+}
+.canvas-draw {
+  &:hover {
+    stroke: white;
+  }
+}
+.selected-tool {
+  border-color: violet !important;
+  filter: brightness(1.1);
 }
 .tools-bar {
   display: flex;

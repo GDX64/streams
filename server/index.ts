@@ -1,6 +1,6 @@
-import express from "express";
-import { Server, Socket } from "socket.io";
-import { setupWaveSubscription } from "./waveSubscription";
+import express from 'express';
+import { Server, Socket } from 'socket.io';
+import { setupWaveSubscription } from './waveSubscription';
 
 function initServer() {
   const app = express();
@@ -12,12 +12,12 @@ function initServer() {
 
   const io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: '*',
     },
   });
 
-  io.on("connection", (socket: Socket) => {
-    console.log("New connection");
+  io.on('connection', (socket: Socket) => {
+    console.log('New connection');
     setupWaveSubscription(socket);
   });
 }
