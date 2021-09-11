@@ -53,7 +53,7 @@ function mouseObservable(canvas: HasEventTargetAddRemove<MouseEvent>) {
   );
 }
 
-export function makeCanvasObservable(objDrawer: ObjDrawer, config: LineConfig) {
+export function makeFreeDrawingObservable(objDrawer: ObjDrawer, config: LineConfig) {
   const $canvas = objDrawer.draw.node;
   return mouseObservable($canvas).pipe(
     scan<PairNumArr, Polyline, null>((line, arrValues) => {

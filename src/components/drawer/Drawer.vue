@@ -31,7 +31,7 @@
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from 'vue';
 import { Subscription } from 'rxjs';
-import { makeDrawOnCanvas, makeCanvasObservable, ObjDrawer, selected } from './freeDrawing';
+import { makeDrawOnCanvas, makeFreeDrawingObservable, ObjDrawer, selected } from './freeDrawing';
 import { Shape } from '@svgdotjs/svg.js';
 import { DrawActions, ToolsEnum } from './Enums';
 const { DELETE, DESELECT, SELECT } = DrawActions;
@@ -55,7 +55,7 @@ export default defineComponent({
     startFreeDraw() {
       this.subscription?.unsubscribe();
       this.selectedTool = ToolsEnum.FREE_DRAW;
-      this.subscription = makeCanvasObservable(this.objDrawer, this.lineConfig).subscribe(
+      this.subscription = makeFreeDrawingObservable(this.objDrawer, this.lineConfig).subscribe(
         this.addToDrawSet
       );
     },
