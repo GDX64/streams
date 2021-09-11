@@ -8,8 +8,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { from, fromEvent, fromEventPattern } from 'rxjs';
-import { takeUntil, switchMap, tap, map, scan, filter, reduce } from 'rxjs/operators';
+import { fromEvent, fromEventPattern } from 'rxjs';
+import { takeUntil, switchMap, tap, scan } from 'rxjs/operators';
 
 type TopLeft = { top: number; left: number };
 
@@ -47,48 +47,6 @@ function accPos($el: HTMLElement) {
   );
 }
 
-function snap(value: number, reference: number, tolerance = 10) {
-  return Math.abs(value - reference) < tolerance ? reference : null;
-}
-
-const maybeOp = <T, K>(value: T | null, fn: (x: T) => K) => (value == null ? null : fn(value));
-
-function getSnappedPos({ top, left }: TopLeft, $element: HTMLElement) {
-  return from(mDragBalls).pipe(
-    filter(($referenceEl) => $referenceEl !== $element),
-    map(($referenceEl) => {
-      const { width, height } = $element.getBoundingClientRect();
-      const {
-        right: nRefRight,
-        left: nRefLeft,
-        top: nRefTop,
-        bottom: nRefBottom,
-      } = $referenceEl.getBoundingClientRect();
-
-      const [bottom, right] = [top + height, left + width];
-      return {
-        left:
-          snap(left, nRefLeft) ??
-          snap(left, nRefRight) ??
-          maybeOp(snap(right, nRefRight), (x) => x - width) ??
-          maybeOp(snap(right, nRefLeft), (x) => x - width),
-        top:
-          snap(top, nRefTop) ??
-          snap(top, nRefBottom) ??
-          maybeOp(snap(bottom, nRefTop), (x) => x - height) ??
-          maybeOp(snap(bottom, nRefBottom), (x) => x - height),
-      };
-    }),
-    reduce(
-      (acc, value) => ({
-        top: value.top ?? acc.top,
-        left: value.left ?? acc.left,
-      }),
-      { top, left }
-    )
-  );
-}
-
 function updatePos($el: HTMLElement) {
   return ({ left = 0, top = 0 }) => {
     $el.style.top = `${top}px`;
@@ -117,10 +75,7 @@ export default defineComponent({
   mounted() {
     mDragBalls.add(this.$el);
     dragObservable(this.$el)
-      .pipe(
-        accPos(this.$el),
-        switchMap((objPos) => getSnappedPos(objPos, this.$el))
-      )
+      .pipe(accPos(this.$el))
       .subscribe(updatePos(this.$el));
     dragObservable(this.$refs.resize as HTMLElement).subscribe(makeResizable(this.$el));
   },

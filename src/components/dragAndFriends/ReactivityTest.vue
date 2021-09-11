@@ -23,11 +23,6 @@ const mapValues = ref({ text: 'hi' });
 const arrValues = computed(() => mapValues.value.text.split(' ').map((str) => str.length));
 const value = computed(log(() => arrValues.value.reduce((a, b) => a + b), 'sum'));
 
-(window as any).arrValues = arrValues;
-(window as any).value = value;
-(window as any).mapValues = mapValues;
-// setTimeout(() => (value.value = 20), 1000);
-
 export default defineComponent({
   setup() {
     const max = computed(log(() => arrValues.value.reduce((a, b) => Math.max(a, b)), 'max'));
