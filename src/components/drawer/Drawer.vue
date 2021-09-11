@@ -23,9 +23,10 @@
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from 'vue';
 import { Subscription } from 'rxjs';
-import { makeDrawOnCanvas, makeCanvasObservable, ObjDrawer } from './freeDrawing';
+import { makeDrawOnCanvas, makeCanvasObservable, ObjDrawer, selected } from './freeDrawing';
 import { Polyline } from '@svgdotjs/svg.js';
-import ToolsEnum from './ToolsEnum';
+import { DrawActions, ToolsEnum } from './Enums';
+const { DELETE, DESELECT, SELECT } = DrawActions;
 
 export default defineComponent({
   setup() {
@@ -57,6 +58,11 @@ export default defineComponent({
     addToDrawSet(draw: Polyline | null) {
       if (!draw) return;
       draw.addClass('canvas-draw');
+      selected(draw.node).subscribe((event) => {
+        event === DELETE && draw.remove();
+        event === SELECT && draw.addClass('canvas-draw__selected');
+        event === DESELECT && draw.removeClass('canvas-draw__selected');
+      });
       this.drawSet.add(draw);
     },
   },
@@ -75,7 +81,11 @@ export default defineComponent({
   flex-grow: 1;
 }
 .canvas-draw {
+  transition: stroke 0.2s;
   &:hover {
+    stroke: white;
+  }
+  &__selected {
     stroke: white;
   }
 }

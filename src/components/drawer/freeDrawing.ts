@@ -1,18 +1,24 @@
-import { fromEvent, merge } from 'rxjs';
+import { fromEvent, merge, of } from 'rxjs';
 import {
   concatMap,
+  concatWith,
   filter,
   map,
   mapTo,
+  mergeWith,
   repeat,
   scan,
-  startWith,
   switchMap,
   take,
+  takeWhile,
   tap,
 } from 'rxjs/operators';
 import { Polyline, SVG } from '@svgdotjs/svg.js';
 import { HasEventTargetAddRemove } from 'rxjs/internal/observable/fromEvent';
+import { clickOutside, keyDown } from '../Events/events';
+import { DrawActions } from './Enums';
+
+const { DELETE, DESELECT, SELECT, FINISH } = DrawActions;
 
 export function makeDrawOnCanvas(canvas: HTMLElement) {
   const draw = SVG()
@@ -67,8 +73,24 @@ export function makeCanvasObservable(objDrawer: ObjDrawer, config: LineConfig) {
   );
 }
 
-function pointEmitter($canvas: HasEventTargetAddRemove<MouseEvent>) {
-  return fromEvent($canvas, 'click').pipe(
-    switchMap((event) => fromEvent($canvas, 'mousemove').pipe(startWith(event)))
+type HasMouseAndKeyBoard = HasEventTargetAddRemove<MouseEvent & KeyboardEvent>;
+
+const pressDelete = () => keyDown(document, 'Delete').pipe(mapTo(DELETE));
+const deselect = ($el: HasMouseAndKeyBoard) =>
+  clickOutside($el).pipe(switchMap(() => of(DESELECT, FINISH)));
+
+export function selected($el: HasMouseAndKeyBoard) {
+  return fromEvent($el, 'click').pipe(
+    switchMap(() => {
+      return of(SELECT).pipe(concatWith(pressDelete()), mergeWith(deselect($el)));
+    }),
+    takeWhile((value) => value !== FINISH),
+    repeat()
   );
 }
+
+// function pointEmitter($canvas: HasEventTargetAddRemove<MouseEvent>) {
+//   return fromEvent($canvas, 'click').pipe(
+//     switchMap((event) => fromEvent($canvas, 'mousemove').pipe(startWith(event)))
+//   );
+// }
