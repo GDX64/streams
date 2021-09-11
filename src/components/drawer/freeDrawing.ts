@@ -25,11 +25,11 @@ export function makeDrawOnCanvas(canvas: HTMLElement) {
     .addTo(canvas)
     .addClass('canvas-svg');
   return {
-    getLine({ color }: LineConfig) {
+    getLine({ color, width, fill }: LineConfig) {
       return draw
         .polyline()
-        .fill('#00000000')
-        .stroke({ color });
+        .fill(fill ? color : 'none')
+        .stroke({ color, width });
     },
     draw,
   };
@@ -40,6 +40,8 @@ type PairNumArr = PairNum[];
 export type ObjDrawer = ReturnType<typeof makeDrawOnCanvas>;
 interface LineConfig {
   color: string;
+  width: number;
+  fill: boolean;
 }
 
 function mouseObservable(canvas: HasEventTargetAddRemove<MouseEvent>) {

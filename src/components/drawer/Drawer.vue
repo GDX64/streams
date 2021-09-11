@@ -2,6 +2,14 @@
   <div class="canvas-container" ref="canvas" @contextmenu.prevent>
     <div class="tools-bar">
       <input type="color" v-model="lineConfig.color" />
+      <div class="labeled-container">
+        <label>width</label>
+        <input type="range" step="1" min="1" max="5" v-model="lineConfig.width" />
+      </div>
+      <div class="labeled-container">
+        <label>fill</label>
+        <input type="checkbox" v-model="lineConfig.fill" />
+      </div>
       <button
         :class="{ 'selected-tool': selectedTool === ToolsEnum.FREE_DRAW }"
         class="draw-tool"
@@ -24,7 +32,7 @@
 import { computed, defineComponent, reactive, ref } from 'vue';
 import { Subscription } from 'rxjs';
 import { makeDrawOnCanvas, makeCanvasObservable, ObjDrawer, selected } from './freeDrawing';
-import { Polyline } from '@svgdotjs/svg.js';
+import { Shape } from '@svgdotjs/svg.js';
 import { DrawActions, ToolsEnum } from './Enums';
 const { DELETE, DESELECT, SELECT } = DrawActions;
 
@@ -36,8 +44,8 @@ export default defineComponent({
       if (!canvas.value) throw Error('Canvas not present');
       return makeDrawOnCanvas(canvas.value);
     });
-    const lineConfig = reactive({ color: '#ff0000' });
-    const drawSet = new Set<Polyline>();
+    const lineConfig = reactive({ color: '#ff0000', width: 2, fill: false });
+    const drawSet = new Set<Shape>();
     const selectedTool = ref(ToolsEnum.NONE);
     lineConfig.color;
     return { canvas, lineConfig, subscription, objDrawer, drawSet, selectedTool, ToolsEnum };
@@ -55,7 +63,7 @@ export default defineComponent({
       this.selectedTool = ToolsEnum.NONE;
       this.subscription?.unsubscribe();
     },
-    addToDrawSet(draw: Polyline | null) {
+    addToDrawSet(draw: Shape | null) {
       if (!draw) return;
       draw.addClass('canvas-draw');
       selected(draw.node).subscribe((event) => {
@@ -81,11 +89,9 @@ export default defineComponent({
   flex-grow: 1;
 }
 .canvas-draw {
-  transition: stroke 0.2s;
+  transition: stroke, fill, 0.2s;
+  &__selected,
   &:hover {
-    stroke: white;
-  }
-  &__selected {
     stroke: white;
   }
 }
@@ -96,6 +102,7 @@ export default defineComponent({
 .tools-bar {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 .draw-tool {
   height: 27px;
@@ -111,5 +118,9 @@ export default defineComponent({
   &:active {
     background-color: white;
   }
+}
+.labeled-container {
+  display: flex;
+  flex-flow: column;
 }
 </style>
