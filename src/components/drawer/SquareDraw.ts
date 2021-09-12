@@ -1,8 +1,7 @@
-import { Shape, SVG, Svg } from '@svgdotjs/svg.js';
-import { from, fromEvent, merge, of } from 'rxjs';
-import { HasEventTargetAddRemove } from 'rxjs/internal/observable/fromEvent';
-import { concatMap, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
-import { reactive, watch, watchEffect, ref, Ref } from 'vue';
+import { Container, G } from '@svgdotjs/svg.js';
+import { Observable } from 'rxjs';
+import { reactive, watchEffect, ref, Ref } from 'vue';
+import { observeClickAndMove, StreamInputEvent } from '../Events/events';
 import { Point, ReactiveLine } from './BasicShapes';
 
 interface ProtoPoint {
@@ -10,38 +9,28 @@ interface ProtoPoint {
   y: number;
 }
 
-function mouseMoveAndClick($el: HasEventTargetAddRemove<MouseEvent>) {
-  return merge(
-    fromEvent<MouseEvent>($el, 'click').pipe(
-      map(({ offsetX, offsetY }) => ({ offsetX, offsetY, type: 'click' }))
-    ),
-    fromEvent<MouseEvent>($el, 'mousemove').pipe(
-      map(({ offsetX, offsetY }) => ({ offsetX, offsetY, type: 'move' }))
-    )
-  );
-}
-
-function observeClickAndMove($el: HasEventTargetAddRemove<MouseEvent>) {
-  return fromEvent<MouseEvent>($el, 'click').pipe(
-    concatMap(({ offsetX, offsetY }) =>
-      merge(of({ offsetX, offsetY, type: 'click' }), mouseMoveAndClick($el))
-    ),
-    takeUntil(fromEvent(document, 'contextmenu'))
-  );
-}
-
 export default class SquareDraw {
   private points: Point[];
+  private $group: G;
   private virtualPoint: Ref<Point | null>;
   private lines: ReactiveLine[] = [];
-  constructor(private $canvas: Svg) {
+  constructor($container: Container) {
+    this.$group = $container.group();
     this.points = reactive([]);
     this.virtualPoint = ref(null) as Ref<Point | null>;
     watchEffect(() => this.draw([this.points, this.virtualPoint.value ?? []].flat()));
   }
 
-  start() {
-    observeClickAndMove(this.$canvas.node).subscribe({
+  static async fromContainer($container: Container) {
+    const sqDraw = new SquareDraw($container);
+    await new Promise<void>((resolve) => {
+      sqDraw.start(observeClickAndMove($container.node), resolve);
+    });
+    return sqDraw;
+  }
+
+  start(stream: Observable<StreamInputEvent>, onComplete?: () => void) {
+    stream.subscribe({
       next: (event) => {
         const protoPoint = { x: event.offsetX, y: event.offsetY };
         event.type === 'click'
@@ -51,17 +40,18 @@ export default class SquareDraw {
       complete: () => {
         this.virtualPoint.value?.erease();
         this.virtualPoint.value = null;
+        onComplete?.();
       },
     });
   }
 
   private pushPoint(protoPoint: ProtoPoint) {
-    this.points.push(new Point(protoPoint, this.$canvas));
+    this.points.push(new Point(protoPoint, this.$group));
   }
 
   private updatePoint(protoPoint: ProtoPoint) {
     if (!this.virtualPoint.value) {
-      this.virtualPoint.value = new Point(protoPoint, this.$canvas);
+      this.virtualPoint.value = new Point(protoPoint, this.$group);
       return;
     }
     this.virtualPoint.value.update(protoPoint).draw();
@@ -81,7 +71,7 @@ export default class SquareDraw {
   private drawLines(points: Point[]) {
     return points.slice(1).reduce(
       ({ lines, lastPoint }, point) => {
-        const line = new ReactiveLine(lastPoint, point, this.$canvas);
+        const line = new ReactiveLine(lastPoint, point, this.$group);
         return { lines: [...lines, line], lastPoint: point };
       },
       { lines: [] as ReactiveLine[], lastPoint: this.points[0] }
@@ -89,6 +79,6 @@ export default class SquareDraw {
   }
 
   erease() {
-    this.lines.flat().forEach((line) => line.destroy());
+    this.lines.flat().forEach((line) => line.erease());
   }
 }

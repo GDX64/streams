@@ -38,7 +38,12 @@
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from 'vue';
 import { Subscription } from 'rxjs';
-import { makeDrawOnCanvas, makeFreeDrawingObservable, ObjDrawer, selected } from './freeDrawing';
+import {
+  makeDrawOnCanvas,
+  makeFreeDrawingObservable,
+  ObjDrawer,
+  selected,
+} from './freeDrawing';
 import { Shape } from '@svgdotjs/svg.js';
 import { DrawActions, ToolsEnum } from './Enums';
 import SquareDraw from './SquareDraw';
@@ -56,21 +61,30 @@ export default defineComponent({
     const drawSet = new Set<Shape>();
     const selectedTool = ref(ToolsEnum.NONE);
     lineConfig.color;
-    return { canvas, lineConfig, subscription, objDrawer, drawSet, selectedTool, ToolsEnum };
+    return {
+      canvas,
+      lineConfig,
+      subscription,
+      objDrawer,
+      drawSet,
+      selectedTool,
+      ToolsEnum,
+    };
   },
 
   methods: {
     startFreeDraw() {
       this.subscription?.unsubscribe();
       this.selectedTool = ToolsEnum.FREE_DRAW;
-      this.subscription = makeFreeDrawingObservable(this.objDrawer, this.lineConfig).subscribe(
-        this.addToDrawSet
-      );
+      this.subscription = makeFreeDrawingObservable(
+        this.objDrawer,
+        this.lineConfig
+      ).subscribe(this.addToDrawSet);
     },
     startSquareDraw() {
       console.log('starting saquare');
       this.selectedTool = ToolsEnum.SQUARE;
-      new SquareDraw(this.objDrawer.draw).start();
+      const sqDraw = SquareDraw.fromContainer(this.objDrawer.draw);
     },
     noneSelected() {
       this.selectedTool = ToolsEnum.NONE;
