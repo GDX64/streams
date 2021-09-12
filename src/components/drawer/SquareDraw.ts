@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 import { reactive, watchEffect, ref, Ref } from 'vue';
 import { observeClickAndMove, StreamInputEvent } from '../Events/events';
 import { Point, ReactiveLine } from './BasicShapes';
+import { LineConfig } from './freeDrawing';
+import './point.scss';
 
 interface ProtoPoint {
   x: number;
@@ -11,18 +13,21 @@ interface ProtoPoint {
 
 export default class SquareDraw {
   private points: Point[];
-  private $group: G;
+  // private $group: G;
+  private $circlesGroup: G;
+  private $linesGroup: G;
   private virtualPoint: Ref<Point | null>;
   private lines: ReactiveLine[] = [];
-  constructor($container: Container) {
-    this.$group = $container.group();
+  constructor($container: Container, private lineConfig: LineConfig) {
+    this.$linesGroup = $container.group();
+    this.$circlesGroup = $container.group();
     this.points = reactive([]);
     this.virtualPoint = ref(null) as Ref<Point | null>;
     watchEffect(() => this.draw([this.points, this.virtualPoint.value ?? []].flat()));
   }
 
-  static async fromContainer($container: Container) {
-    const sqDraw = new SquareDraw($container);
+  static async fromContainer($container: Container, lineConfig: LineConfig) {
+    const sqDraw = new SquareDraw($container, lineConfig);
     await new Promise<void>((resolve) => {
       sqDraw.start(observeClickAndMove($container.node), resolve);
     });
@@ -46,12 +51,20 @@ export default class SquareDraw {
   }
 
   private pushPoint(protoPoint: ProtoPoint) {
-    this.points.push(new Point(protoPoint, this.$group));
+    this.points.push(
+      new Point(protoPoint, this.$circlesGroup, this.lineConfig).addClass(
+        'dragabble-point'
+      )
+    );
   }
 
   private updatePoint(protoPoint: ProtoPoint) {
     if (!this.virtualPoint.value) {
-      this.virtualPoint.value = new Point(protoPoint, this.$group);
+      this.virtualPoint.value = new Point(
+        protoPoint,
+        this.$circlesGroup,
+        this.lineConfig
+      );
       return;
     }
     this.virtualPoint.value.update(protoPoint).draw();
@@ -60,8 +73,8 @@ export default class SquareDraw {
   draw(points: Point[]) {
     if (!points.length) return;
     this.erease();
-    this.drawCircles(points);
     this.lines = this.drawLines(points);
+    this.drawCircles(points);
   }
 
   private drawCircles(points: Point[]) {
@@ -71,7 +84,12 @@ export default class SquareDraw {
   private drawLines(points: Point[]) {
     return points.slice(1).reduce(
       ({ lines, lastPoint }, point) => {
-        const line = new ReactiveLine(lastPoint, point, this.$group);
+        const line = new ReactiveLine(
+          lastPoint,
+          point,
+          this.$linesGroup,
+          this.lineConfig
+        );
         return { lines: [...lines, line], lastPoint: point };
       },
       { lines: [] as ReactiveLine[], lastPoint: this.points[0] }

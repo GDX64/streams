@@ -84,7 +84,7 @@ export default defineComponent({
     startSquareDraw() {
       console.log('starting saquare');
       this.selectedTool = ToolsEnum.SQUARE;
-      const sqDraw = SquareDraw.fromContainer(this.objDrawer.draw);
+      const sqDraw = SquareDraw.fromContainer(this.objDrawer.draw, this.lineConfig);
     },
     noneSelected() {
       this.selectedTool = ToolsEnum.NONE;

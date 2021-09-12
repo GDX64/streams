@@ -38,7 +38,7 @@ export function makeDrawOnCanvas(canvas: HTMLElement) {
 type PairNum = [number, number];
 type PairNumArr = PairNum[];
 export type ObjDrawer = ReturnType<typeof makeDrawOnCanvas>;
-interface LineConfig {
+export interface LineConfig {
   color: string;
   width: number;
   fill: boolean;
