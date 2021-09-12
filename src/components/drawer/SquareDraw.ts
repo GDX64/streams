@@ -2,6 +2,7 @@ import { Shape, SVG, Svg } from '@svgdotjs/svg.js';
 import { from, fromEvent, merge, of } from 'rxjs';
 import { HasEventTargetAddRemove } from 'rxjs/internal/observable/fromEvent';
 import { concatMap, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
+import { reactive, watch, watchEffect, ref, Ref } from 'vue';
 
 interface Point {
   x: number;
@@ -29,11 +30,15 @@ function observeClickAndMove($el: HasEventTargetAddRemove<MouseEvent>) {
 }
 
 export default class SquareDraw {
-  private points: Point[] = [];
-  private virtualPoint: Point = { x: 0, y: 0 };
+  private points: Point[];
+  private virtualPoint: Ref<Point>;
   private circles: Shape[] = [];
   private lines: Shape[] = [];
-  constructor(private $canvas: Svg) {}
+  constructor(private $canvas: Svg) {
+    this.points = reactive([] as Point[]);
+    this.virtualPoint = ref({ x: 0, y: 0 });
+    watchEffect(() => this.draw([...this.points, this.virtualPoint.value]));
+  }
   start() {
     observeClickAndMove(this.$canvas.node).subscribe((event) => {
       const point = { x: event.offsetX, y: event.offsetY };
@@ -43,19 +48,17 @@ export default class SquareDraw {
 
   private pushPoint(point: Point) {
     this.points.push(point);
-    if (this.points.length === 1) this.draw();
   }
 
   private updatePoint(point: Point) {
-    this.virtualPoint = point;
-    this.draw();
+    this.virtualPoint.value = point;
   }
 
-  draw() {
-    if (!this.points.length) return;
+  draw(points: Point[]) {
+    if (!points.length) return;
     this.erease();
-    this.circles = this.drawCircles([...this.points, this.virtualPoint]);
-    this.lines = this.drawLines([...this.points, this.virtualPoint]);
+    this.circles = this.drawCircles(points);
+    this.lines = this.drawLines(points);
   }
 
   private drawCircles(points: Point[]) {
