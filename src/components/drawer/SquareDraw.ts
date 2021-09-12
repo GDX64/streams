@@ -40,9 +40,17 @@ export default class SquareDraw {
     watchEffect(() => this.draw([this.points, this.virtualPoint.value ?? []].flat()));
   }
   start() {
-    observeClickAndMove(this.$canvas.node).subscribe((event) => {
-      const protoPoint = { x: event.offsetX, y: event.offsetY };
-      event.type === 'click' ? this.pushPoint(protoPoint) : this.updatePoint(protoPoint);
+    observeClickAndMove(this.$canvas.node).subscribe({
+      next: (event) => {
+        const protoPoint = { x: event.offsetX, y: event.offsetY };
+        event.type === 'click'
+          ? this.pushPoint(protoPoint)
+          : this.updatePoint(protoPoint);
+      },
+      complete: () => {
+        this.virtualPoint.value?.erease();
+        this.virtualPoint.value = null;
+      },
     });
   }
 
