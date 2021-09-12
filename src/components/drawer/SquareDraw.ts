@@ -3,8 +3,9 @@ import { from, fromEvent, merge, of } from 'rxjs';
 import { HasEventTargetAddRemove } from 'rxjs/internal/observable/fromEvent';
 import { concatMap, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { reactive, watch, watchEffect, ref, Ref } from 'vue';
+import { Point } from './BasicShapes';
 
-interface Point {
+interface ProtoPoint {
   x: number;
   y: number;
 }
@@ -31,44 +32,49 @@ function observeClickAndMove($el: HasEventTargetAddRemove<MouseEvent>) {
 
 export default class SquareDraw {
   private points: Point[];
-  private virtualPoint: Ref<Point>;
-  private circles: Shape[] = [];
+  private virtualPoint: Ref<Point | null>;
   private lines: Shape[] = [];
   constructor(private $canvas: Svg) {
-    this.points = reactive([] as Point[]);
-    this.virtualPoint = ref({ x: 0, y: 0 });
-    watchEffect(() => this.draw([...this.points, this.virtualPoint.value]));
+    this.points = reactive([]);
+    this.virtualPoint = ref(null) as Ref<Point | null>;
+    watchEffect(() => this.draw([this.points, this.virtualPoint.value ?? []].flat()));
   }
   start() {
     observeClickAndMove(this.$canvas.node).subscribe((event) => {
-      const point = { x: event.offsetX, y: event.offsetY };
-      event.type === 'click' ? this.pushPoint(point) : this.updatePoint(point);
+      const protoPoint = { x: event.offsetX, y: event.offsetY };
+      event.type === 'click' ? this.pushPoint(protoPoint) : this.updatePoint(protoPoint);
     });
   }
 
-  private pushPoint(point: Point) {
-    this.points.push(point);
+  private pushPoint(protoPoint: ProtoPoint) {
+    this.points.push(new Point(protoPoint, this.$canvas));
   }
 
-  private updatePoint(point: Point) {
-    this.virtualPoint.value = point;
+  private updatePoint(protoPoint: ProtoPoint) {
+    if (!this.virtualPoint.value) {
+      this.virtualPoint.value = new Point(protoPoint, this.$canvas);
+      return;
+    }
+    this.virtualPoint.value.update(protoPoint).draw();
   }
 
   draw(points: Point[]) {
     if (!points.length) return;
     this.erease();
-    this.circles = this.drawCircles(points);
+    this.drawCircles(points);
     this.lines = this.drawLines(points);
   }
 
   private drawCircles(points: Point[]) {
-    return points.map((point) => this.$canvas.circle(5).center(point.x, point.y));
+    return points.forEach((point) => point.draw());
   }
 
   private drawLines(points: Point[]) {
     return points.slice(1).reduce(
       ({ lines, lastPoint }, point) => {
-        const line = this.$canvas.line(lastPoint.x, lastPoint.y, point.x, point.y).stroke('black');
+        const line = this.$canvas
+          .line(lastPoint.x, lastPoint.y, point.x, point.y)
+          .stroke('black');
         lines.push(line);
         return { lines, lastPoint: point };
       },
@@ -77,6 +83,6 @@ export default class SquareDraw {
   }
 
   erease() {
-    [this.circles, this.lines].flat().forEach((shape) => shape.remove());
+    this.lines.flat().forEach((shape) => shape.remove());
   }
 }

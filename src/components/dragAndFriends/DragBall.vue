@@ -8,32 +8,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { fromEvent, fromEventPattern } from 'rxjs';
-import { takeUntil, switchMap, tap, scan } from 'rxjs/operators';
+import { scan } from 'rxjs/operators';
+import { dragObservable } from '../Events/events';
 
 type TopLeft = { top: number; left: number };
 
 const mDragBalls = new Set<HTMLElement>();
-
-function withStoppedEvent($el: HTMLElement, strEvent: string) {
-  return fromEventPattern((handler) => {
-    $el.addEventListener(strEvent, (event) => {
-      event.stopPropagation();
-      handler(event);
-    });
-  });
-}
-
-function dragObservable($el: HTMLElement) {
-  return withStoppedEvent($el, 'mousedown').pipe(
-    tap(() => $el.classList.add('no-select')),
-    switchMap(() =>
-      fromEvent<MouseEvent>(document, 'mousemove').pipe(
-        takeUntil(fromEvent(document, 'mouseup').pipe(tap(() => $el.classList.remove('no-select'))))
-      )
-    )
-  );
-}
 
 function accPos($el: HTMLElement) {
   return scan(
