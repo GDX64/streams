@@ -18,6 +18,13 @@
         Free
       </button>
       <button
+        :class="{ 'selected-tool': selectedTool === ToolsEnum.SQUARE }"
+        class="draw-tool"
+        @click="startSquareDraw"
+      >
+        Square
+      </button>
+      <button
         :class="{ 'selected-tool': selectedTool === ToolsEnum.NONE }"
         class="draw-tool"
         @click="noneSelected"
@@ -34,6 +41,7 @@ import { Subscription } from 'rxjs';
 import { makeDrawOnCanvas, makeFreeDrawingObservable, ObjDrawer, selected } from './freeDrawing';
 import { Shape } from '@svgdotjs/svg.js';
 import { DrawActions, ToolsEnum } from './Enums';
+import SquareDraw from './SquareDraw';
 const { DELETE, DESELECT, SELECT } = DrawActions;
 
 export default defineComponent({
@@ -58,6 +66,11 @@ export default defineComponent({
       this.subscription = makeFreeDrawingObservable(this.objDrawer, this.lineConfig).subscribe(
         this.addToDrawSet
       );
+    },
+    startSquareDraw() {
+      console.log('starting saquare');
+      this.selectedTool = ToolsEnum.SQUARE;
+      new SquareDraw(this.objDrawer.draw).start();
     },
     noneSelected() {
       this.selectedTool = ToolsEnum.NONE;
