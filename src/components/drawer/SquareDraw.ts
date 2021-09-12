@@ -3,7 +3,7 @@ import { from, fromEvent, merge, of } from 'rxjs';
 import { HasEventTargetAddRemove } from 'rxjs/internal/observable/fromEvent';
 import { concatMap, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { reactive, watch, watchEffect, ref, Ref } from 'vue';
-import { Point } from './BasicShapes';
+import { Point, ReactiveLine } from './BasicShapes';
 
 interface ProtoPoint {
   x: number;
@@ -33,12 +33,13 @@ function observeClickAndMove($el: HasEventTargetAddRemove<MouseEvent>) {
 export default class SquareDraw {
   private points: Point[];
   private virtualPoint: Ref<Point | null>;
-  private lines: Shape[] = [];
+  private lines: ReactiveLine[] = [];
   constructor(private $canvas: Svg) {
     this.points = reactive([]);
     this.virtualPoint = ref(null) as Ref<Point | null>;
     watchEffect(() => this.draw([this.points, this.virtualPoint.value ?? []].flat()));
   }
+
   start() {
     observeClickAndMove(this.$canvas.node).subscribe({
       next: (event) => {
@@ -74,23 +75,20 @@ export default class SquareDraw {
   }
 
   private drawCircles(points: Point[]) {
-    return points.forEach((point) => point.draw());
+    points.forEach((point) => point.draw());
   }
 
   private drawLines(points: Point[]) {
     return points.slice(1).reduce(
       ({ lines, lastPoint }, point) => {
-        const line = this.$canvas
-          .line(lastPoint.x, lastPoint.y, point.x, point.y)
-          .stroke('black');
-        lines.push(line);
-        return { lines, lastPoint: point };
+        const line = new ReactiveLine(lastPoint, point, this.$canvas);
+        return { lines: [...lines, line], lastPoint: point };
       },
-      { lines: [] as Shape[], lastPoint: this.points[0] }
+      { lines: [] as ReactiveLine[], lastPoint: this.points[0] }
     ).lines;
   }
 
   erease() {
-    this.lines.flat().forEach((shape) => shape.remove());
+    this.lines.flat().forEach((line) => line.destroy());
   }
 }

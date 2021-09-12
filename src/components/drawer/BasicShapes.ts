@@ -1,4 +1,4 @@
-import { Circle, Svg } from '@svgdotjs/svg.js';
+import { Circle, Line, Svg } from '@svgdotjs/svg.js';
 import { dragObservable } from '../Events/events';
 import { ReactiveEffect, reactive, computed, ComputedRef } from 'vue';
 export class Point {
@@ -42,5 +42,26 @@ export class Point {
     this.x = x;
     this.y = y;
     return this;
+  }
+}
+
+export class ReactiveLine {
+  compLine: ComputedRef<Line>;
+  line: Line;
+  constructor(private start: Point, private finish: Point, private $canvas: Svg) {
+    this.line = this.$canvas
+      .line(this.start.x, this.start.y, this.finish.x, this.finish.y)
+      .stroke('black');
+    this.compLine = computed(() => {
+      return this.line.plot(this.start.x, this.start.y, this.finish.x, this.finish.y);
+    });
+  }
+
+  draw() {
+    return this.compLine.value;
+  }
+
+  destroy() {
+    this.line.remove();
   }
 }
