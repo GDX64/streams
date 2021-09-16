@@ -46,7 +46,7 @@ import {
 } from './freeDrawing';
 import { Shape } from '@svgdotjs/svg.js';
 import { DrawActions, ToolsEnum } from './Enums';
-import SquareDraw from './SquareDraw';
+import Multiline from './Multiline';
 const { DELETE, DESELECT, SELECT } = DrawActions;
 
 export default defineComponent({
@@ -81,10 +81,10 @@ export default defineComponent({
         this.lineConfig
       ).subscribe(this.addToDrawSet);
     },
-    startSquareDraw() {
+    startMultiline() {
       console.log('starting saquare');
       this.selectedTool = ToolsEnum.SQUARE;
-      const sqDraw = SquareDraw.fromContainer(this.objDrawer.draw, this.lineConfig);
+      const sqDraw = Multiline.fromContainer(this.objDrawer.draw, this.lineConfig);
     },
     noneSelected() {
       this.selectedTool = ToolsEnum.NONE;

@@ -11,7 +11,7 @@ interface ProtoPoint {
   y: number;
 }
 
-export default class SquareDraw {
+export default class Multiline {
   private points: Point[];
   // private $group: G;
   private $circlesGroup: G;
@@ -27,7 +27,7 @@ export default class SquareDraw {
   }
 
   static async fromContainer($container: Container, lineConfig: LineConfig) {
-    const sqDraw = new SquareDraw($container, lineConfig);
+    const sqDraw = new Multiline($container, lineConfig);
     await new Promise<void>((resolve) => {
       sqDraw.start(observeClickAndMove($container.node), resolve);
     });
