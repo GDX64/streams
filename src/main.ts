@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-// import { doDBStuff } from './dataBase/test';
+import { doDBStuff } from './dataBase/test';
 
-// doDBStuff();
+doDBStuff();
 
 createApp(App).mount('#app');
